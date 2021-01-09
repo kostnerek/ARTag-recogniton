@@ -58,7 +58,7 @@ def getCoords(squares):
     yMin = np.min(yCoords)   
     coords=[yMin,yMax,xMin,xMax]
     return coords 
-
+photo = 'resultWithParsedColor.jpg'
 def detect(_PHOTO_, mode=0):
     from glob import glob
     for fn in glob(_PHOTO_):
@@ -67,7 +67,7 @@ def detect(_PHOTO_, mode=0):
         cv.drawContours( img, squares, -1, (0, 255, 0), 1 )
         if(mode==1):
             cv.imshow('squares', img)
-        #cv.imwrite('foundSquares.jpg',img)
+            cv.imwrite('foundSquares.jpg',img)
         ch = cv.waitKey()
         if ch == 27:
             break
@@ -77,5 +77,5 @@ def detect(_PHOTO_, mode=0):
 
 if __name__ == '__main__':
     print(__doc__)
-    detect()
+    print(detect(photo))
     cv.destroyAllWindows()
