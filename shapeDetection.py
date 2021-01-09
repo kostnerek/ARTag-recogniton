@@ -67,7 +67,7 @@ def detect(_PHOTO_, mode=0):
         cv.drawContours( img, squares, -1, (0, 255, 0), 1 )
         if(mode==1):
             cv.imshow('squares', img)
-            cv.imwrite('foundSquares.jpg',img)
+        cv.imwrite('photos/foundSquares.jpg',img)
         ch = cv.waitKey()
         if ch == 27:
             break

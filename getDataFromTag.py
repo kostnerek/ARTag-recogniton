@@ -2,21 +2,29 @@ from arrayLib import Array
 import cv2 as cv
 import numpy as np
 from PIL import Image
+import parseImage 
+
 class ARTag:
     def __init__(self,size,image):
         self.tag = Array(size,size,1)
         #self.tag.printArray(1,1)
         self.size  = size
         self.imgName = image
-        self.image = cv.imread(image)
+        self.image = self.getColoredSides()
+        cv.imwrite('photos/endPicture.jpg',self.image)
         self.cutOnParts()
+        cv.imwrite('photos/endPictureWithLines.jpg',self.image)
 
-    def cutOnParts(self):
+    def getColoredSides(self):
+        self.image = cv.imread(self.imgName)
         self.width = self.image.shape[0]
         self.height = self.image.shape[1]
         self.partWidth  = int(self.width/self.size)
         self.partHeight = int(self.height/self.size)
+        return parseImage.colorSides(self.image,(self.width,self.height), (self.partWidth, self.partHeight))
 
+    def cutOnParts(self):
+        
         for x in range(self.size):
             start_point = (self.partWidth*x,0)
             end_point = (self.partWidth*x,self.height)
@@ -37,6 +45,7 @@ class ARTag:
                 coords=[left, upper, right, lower]
                 #print(x,y)
                 mark = self.getPixel(coords)
+
                 if(mark==1):
                     self.tag.modify(y,x,1)
                 else:
@@ -45,7 +54,7 @@ class ARTag:
        
 
     def getPixel(self,coords):
-        im = Image.open(self.imgName)
+        im = Image.open("photos/endPicture.jpg")
         im = im.crop((coords[0],coords[1],coords[2],coords[3]))
         imconv = im.convert("RGB")
         w=0
@@ -56,7 +65,13 @@ class ARTag:
                     b+=1
                 else:
                     w+=1
-        if(w<b):
+        #shows cut parts
+        im.save('essa.jpg')
+        #print('w:',w,"b:",b)
+        """ cv.imshow('essa', cv.imread('essa.jpg'))
+        ch = cv.waitKey() """
+        pxCount = self.partHeight*self.partWidth
+        if(w<b+pxCount/10):#if whites are less than black+10% of part px count 
             return 1
         else:
             return 0

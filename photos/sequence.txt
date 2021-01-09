@@ -1,0 +1,6 @@
+photo
+extractedLines
+foundSquares
+cropped
+rotated
+result

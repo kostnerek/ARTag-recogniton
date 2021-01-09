@@ -4,13 +4,15 @@ import os
 import pygame.camera 
 import cv2 
 import numpy as np
+import time
+import math 
 
 import shapeDetection as detect
 import parseImage
 from getDataFromTag import ARTag
+import rotation
 
-
-_PHOTO_ = 'photo.jpg'
+_PHOTO_ = 'photos/photo.jpg'
 
 
 #makes photo using pygame
@@ -40,7 +42,7 @@ for x in range(2):
     parseImage.contourPhoto(image)
     parseImage.extractLines(image)
 
-    squares=detect.detect('extractedLines.jpg')
+    squares=detect.detect('photos/extractedLines.jpg')
     coords = detect.getCoords(squares)
     
     image = cv2.imread(_PHOTO_)
@@ -57,15 +59,24 @@ tLY = crd[0][1]
 
 #print(crd[0],crd[1])
 wsp_kier = (tLY - tRY) / (tLX - tRX)
-wsp_kier=0
-print('wsp kier:',wsp_kier)
+wsp_kier=1
+print('wspolczynik kier:',wsp_kier)
 
-cv2.imwrite("cropped.jpg",parseImage.rotate_image(cropped, -wsp_kier))
 
-parseImage.parseARTag(parseImage.rotate_image(cropped, -wsp_kier),130)
+cv2.imwrite("photos/cropped.jpg", cropped)
+#cv2.imwrite("photos/parsedImg.jpg", parseImage)
+time.sleep(1)
+rotation.rotate("photos/cropped.jpg",math.ceil(-wsp_kier))
+#cv2.imwrite("cropped.jpg",rotation.rotate(parseImage,-wsp_kier))
+
+
+
+
+#number below represents treshold of changing colors of picture
+parseImage.parseARTag(cv2.imread("photos/rotated.jpg"),170)
 
 
 #size of inside + 4 for outline 
-tag = ARTag(10,"result.jpg")
+tag = ARTag(10,"photos/result.jpg")
 tag.tag.printReplace(1,1,1,'X',0,' ')
-tag.showImage()
+#tag.showImage()
