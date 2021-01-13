@@ -1,3 +1,5 @@
 /__pycache__
 /photos/*
 /artags/*
+!photos/.gitkeep 
+!artags/.gitkeep 
