@@ -59,7 +59,6 @@ def parseARTag(image, thresh=200):
     hardBWconvert("photos/result.jpg",thresh)#makes mostly black pxs black and so on
 
 def colorSides(image,dimentions,part_dimentions):
-    print(dimentions,part_dimentions)
     #w,h
     pWidth = part_dimentions[0]
     pHeight = part_dimentions[1]

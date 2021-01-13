@@ -6,11 +6,13 @@ import cv2
 import numpy as np
 import time
 import math 
+import glob
 
 import shapeDetection as detect
 import parseImage
 from getDataFromTag import ARTag
 import rotation
+import similarityCheck as simCheck
 
 _PHOTO_ = 'photos/photo.jpg'
 
@@ -38,7 +40,7 @@ def determineCoords(squares):
 
 
 for x in range(2):
-    makePhoto()
+    #makePhoto()
     parseImage.contourPhoto(image)
     parseImage.extractLines(image)
 
@@ -57,26 +59,46 @@ tRY = crd[1][1]
 tLX = crd[0][0]
 tLY = crd[0][1]
 
-#print(crd[0],crd[1])
+
+
 wsp_kier = (tLY - tRY) / (tLX - tRX)
-wsp_kier=1
+wsp_kier=0
 print('wspolczynik kier:',wsp_kier)
 
 
+
+
 cv2.imwrite("photos/cropped.jpg", cropped)
-#cv2.imwrite("photos/parsedImg.jpg", parseImage)
-time.sleep(1)
 rotation.rotate("photos/cropped.jpg",math.ceil(-wsp_kier))
-#cv2.imwrite("cropped.jpg",rotation.rotate(parseImage,-wsp_kier))
 
 
 
 
 #number below represents treshold of changing colors of picture
-parseImage.parseARTag(cv2.imread("photos/rotated.jpg"),170)
+
+parseImage.parseARTag(cv2.imread("photos/rotated.jpg"),120)
 
 
 #size of inside + 4 for outline 
-tag = ARTag(10,"photos/result.jpg")
-tag.tag.printReplace(1,1,1,'X',0,' ')
+tag = ARTag(10,"photos/result.jpg",True)
+#tag.tag.printReplace(1,1,1,'X',0,' ')
 #tag.showImage()
+
+checkPhoto = 'photos/endPicture.jpg'
+projectPath = "C:\\Users\\koste\\Desktop\\moje\\prjekty\\code\\artag\\"
+projectPathLen = len(projectPath)
+
+files = glob.glob("C:\\Users\\koste\\Desktop\\moje\\prjekty\\code\\artag\\artags\\*.*")
+
+checkVal=[]
+
+for x in range(len(files)):
+    name="artags/"
+    name+=files[x][54:]
+    simPercent=math.ceil(simCheck.check(name,checkPhoto,x))
+    print(simPercent,'%')
+    checkVal.append(simPercent)
+
+_ARTagCode = checkVal.index(max(checkVal))
+
+print('Ta liczba to: ', _ARTagCode+1)
