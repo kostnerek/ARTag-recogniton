@@ -43,7 +43,7 @@ def check(original, image_to_compare, fileToWrite, savePicture = False):
 def checkSimilarity(_END_PHOTO_PATH_, showValues=False, savePicture = False):
     projectPath = str(pathlib.Path(__file__).parent.absolute())
     projectPathLen = len(projectPath)
-    projectPath+="\\artags\\*.*"
+    projectPath+="\\templates\\*.*"
     files = glob.glob(projectPath)
     checkVal=[]
 
