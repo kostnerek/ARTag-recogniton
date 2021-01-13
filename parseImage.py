@@ -3,6 +3,9 @@ import numpy as np
 from PIL import Image 
 from ar_markers import detect_markers
 
+_END_PHOTO_PATH_ = 'photos/endPicture.jpg'
+
+
 #outlines sharp countours on photo 
 def contourPhoto(image, mode=0):
     cv2.waitKey(0) 
@@ -17,18 +20,21 @@ def contourPhoto(image, mode=0):
         cv2.imshow('Contours', image) 
     cv2.waitKey(0) 
     cv2.destroyAllWindows() 
+    return image
 
 #highlines all coutours on photo by changing everything other than them to black
-def extractLines(image, mode=0):
+def extractLines(image, mode=0, savePhoto=False):
     lower_range = np.array([0,0,255])  # Set the Lower range value of color in BGR
     upper_range = np.array([0,0,255])   # Set the Upper range value of color in BGR
     mask = cv2.inRange(image,lower_range,upper_range) # Create a mask with range
     result = cv2.bitwise_and(image,image,mask = mask)  # Performing bitwise and operation with mask in img variable
     if(mode==1):
         cv2.imshow('Image1',result) # Image after bitwise operation
-    cv2.waitKey(0)
-    cv2.destroyWindow('Image1')
-    cv2.imwrite('photos/extractedLines.jpg',result)
+        cv2.waitKey(0)
+        cv2.destroyWindow('Image1')
+    if(savePhoto==True):
+        cv2.imwrite('photos/extractedLines.jpg',result)
+    return result 
 
 #rotates image 
 def rotate_image(image, angle):
@@ -45,7 +51,7 @@ def hardBWconvert(name,thresh=170):
     r.save(name)
 
 #makes picture grayscale? i think so...
-def parseARTag(image, thresh=200):
+def grayScaleImage(image, thresh=200,saveImage=False):
 
     kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
     image = cv2.filter2D(image, -1, kernel)
@@ -54,11 +60,13 @@ def parseARTag(image, thresh=200):
     upper_range = np.array([255,255,255])   # Set the Upper range value of color in BGR
     mask = cv2.inRange(image,lower_range,upper_range) # Create a mask with range
     result = cv2.bitwise_and(image,image,mask = mask)  # Performing bitwise and operation with mask in img variable
+    if(saveImage==True):
+        cv2.imwrite('photos/grayScale.jpg',result)
+    hardBWconvert(_END_PHOTO_PATH_,thresh)#makes mostly black pxs black and so on
+    return result
+    
 
-    cv2.imwrite('photos/result.jpg',result)
-    hardBWconvert("photos/result.jpg",thresh)#makes mostly black pxs black and so on
-
-def colorSides(image,dimentions,part_dimentions):
+""" def colorSides(image,dimentions,part_dimentions):
     #w,h
     pWidth = part_dimentions[0]
     pHeight = part_dimentions[1]
@@ -73,5 +81,5 @@ def colorSides(image,dimentions,part_dimentions):
     cv2.rectangle(image,(width-pWidth*2,0),(width+2,height),black,-1)
     cv2.rectangle(image,(0,height-pHeight*2),(width,height),black,-1)
 
-    return image
+    return image """
 

@@ -4,13 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def warp(img_name,coords):
-    img = cv2.imread(img_name)
+def warp(img,coords,saveImage=False):
     rows,cols,ch = img.shape
 
-    #pts1 = np.float32([[31,79],[388,97],[375,447],[15,433]])
     pts1 = np.float32(coords)
-
     ratio=1
     cardH=math.sqrt((pts1[2][0]-pts1[1][0])*(pts1[2][0]-pts1[1][0])+(pts1[2][1]-pts1[1][1])*(pts1[2][1]-pts1[1][1]))
     cardW=ratio*cardH;
@@ -21,6 +18,7 @@ def warp(img_name,coords):
     offsetSize=500
     transformed = np.zeros((int(cardW+offsetSize), int(cardH+offsetSize)), dtype=np.uint8);
     dst = cv2.warpPerspective(img, M, transformed.shape)
-
-    cv2.imwrite('photos/warpedPerspective.jpg', dst)
+    if(saveImage==True):
+        cv2.imwrite('photos/warpedPerspective.jpg', dst)
+    return(dst)
 

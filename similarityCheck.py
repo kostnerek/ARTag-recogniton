@@ -1,23 +1,13 @@
 import cv2 as cv2
 import numpy as np
 import pygame.camera
-
+import math, glob, pathlib
 
 def check(original, image_to_compare, fileToWrite, savePicture = False):
     original = cv2.imread(original)
     image_to_compare = cv2.imread(image_to_compare)
-    # 1) Check if 2 images are equals
-    if original.shape == image_to_compare.shape:
-        print("The images have same size and channels")
-        difference = cv2.subtract(original, image_to_compare)
-        b, g, r = cv2.split(difference)
 
-        if cv2.countNonZero(b) == 0 and cv2.countNonZero(g) == 0 and cv2.countNonZero(r) == 0:
-            print("The images are completely Equal")
-        else:
-            print("The images are NOT equal")
-
-    # 2) Check for similarities between the 2 images
+    #Check for similarities between the 2 images
     sift = cv2.xfeatures2d.SIFT_create()
     kp_1, desc_1 = sift.detectAndCompute(original, None)
     kp_2, desc_2 = sift.detectAndCompute(image_to_compare, None)
@@ -48,9 +38,24 @@ def check(original, image_to_compare, fileToWrite, savePicture = False):
         cv2.resize(result, None, fx=0.4, fy=0.4)
         cv2.imwrite(str(name), result)
     
-    """ print("Keypoints 1ST Image: " + str(len(kp_1)))
-    print("Keypoints 2ND Image: " + str(len(kp_2)))
-    print("GOOD Matches:", len(good_points)) """
-    #print("%of similarity: ", len(good_points) / number_keypoints * 100)
     return len(good_points) / number_keypoints * 100
 
+def checkSimilarity(_END_PHOTO_PATH_, showValues=False, savePicture = False):
+    projectPath = str(pathlib.Path(__file__).parent.absolute())
+    projectPathLen = len(projectPath)
+    projectPath+="\\artags\\*.*"
+    files = glob.glob(projectPath)
+    checkVal=[]
+
+    for x in range(len(files)):
+        name="."
+        name+=files[x][projectPathLen:]
+        simPercent=math.ceil(check(name,_END_PHOTO_PATH_,x,savePicture))
+        if(showValues==True):
+            print(simPercent,'%')
+        checkVal.append(simPercent)
+
+    _ARTagCode = checkVal.index(max(checkVal))
+    if(showValues==True):
+        print('Encoded number is: ', _ARTagCode+1)
+    return _ARTagCode+1

@@ -59,18 +59,16 @@ def getCoords(squares):
     coords=[yMin,yMax,xMin,xMax]
     return coords 
 photo = 'resultWithParsedColor.jpg'
-def detect(_PHOTO_, mode=0):
-    from glob import glob
-    for fn in glob(_PHOTO_):
-        img = cv.imread(fn)
-        squares = find_squares(img)
-        cv.drawContours( img, squares, -1, (0, 255, 0), 1 )
-        if(mode==1):
-            cv.imshow('squares', img)
-        cv.imwrite('photos/foundSquares.jpg',img)
+def detect(_PHOTO_, mode=0, savePhoto=False):
+    
+    img = _PHOTO_
+    squares = find_squares(img)
+    cv.drawContours( img, squares, -1, (0, 255, 0), 1 )
+    if(mode==1):
+        cv.imshow('squares', img)
         ch = cv.waitKey()
-        if ch == 27:
-            break
+    if(savePhoto==True):
+        cv.imwrite('photos/foundSquares.jpg',img)
     
     return squares
 

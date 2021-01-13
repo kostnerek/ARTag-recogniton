@@ -2,21 +2,20 @@ from PIL import Image
 from PIL import ImageFilter
 import os 
 import pygame.camera 
-import cv2 
+import cv2 as cv
 import numpy as np
 import time
 import math 
 import glob
+import pathlib
 
-import shapeDetection as detect
 import parseImage
-from getDataFromTag import ARTag
-import rotation
+import shapeDetection as shapeDetect
 import similarityCheck as simCheck
+import warpPerspective as warp
 
 _PHOTO_ = 'photos/photo.jpg'
-
-
+_END_PHOTO_PATH_ = 'photos/endPicture.jpg'
 #makes photo using pygame
 def makePhoto():
     pygame.camera.init()
@@ -25,80 +24,30 @@ def makePhoto():
     img = cam.get_image()
     pygame.image.save(img,_PHOTO_)
 
-image = cv2.imread(_PHOTO_)
+image = cv.imread(_PHOTO_)
 
-def determineCoords(squares):
-    xCoords=[]
-    yCoords=[]
-    for x in range(len(squares)):
-        for y in range(len(squares[x])):
-            for z in range(len(squares[x][y])):
-                if(z==0):
-                    xCoords.append(squares[x][y][z])
-                else:
-                    yCoords.append(squares[x][y][z])
+contouredPhoto = parseImage.contourPhoto(image)                 #finding contours on original photo
+extractedLinesPhoto = parseImage.extractLines(contouredPhoto)   #extracting contours on black canvas
+squaresCoordinates = shapeDetect.detect(extractedLinesPhoto)    #marking all squares found in those contours
+parsedCoordinates = shapeDetect.getCoords(squaresCoordinates)   #parsing all coordinates 
 
+cropped = image[parsedCoordinates[0]:parsedCoordinates[1],
+                parsedCoordinates[2]:parsedCoordinates[3]]      #crops original with parsedCoordinates
 
-for x in range(2):
-    #makePhoto()
-    parseImage.contourPhoto(image)
-    parseImage.extractLines(image)
+cHeight = cropped.shape[0]
+cWidth = cropped.shape[1]
 
-    squares=detect.detect('photos/extractedLines.jpg')
-    coords = detect.getCoords(squares)
-    
-    image = cv2.imread(_PHOTO_)
-    cropped = image[coords[0]:coords[1],coords[2]:coords[3]]
-    
+warpedPhoto = warp.warp(cropped,squaresCoordinates[0])          #warps photo using square coordinates aquired before
+grayscalePhoto = parseImage.grayScaleImage(warpedPhoto,160)         #makes image gray scale - number corresponds to threshold of changing pixel colors 
+cv.imwrite(_END_PHOTO_PATH_,grayscalePhoto[0:cHeight, 0:cWidth])   #deletes black box surrounding warped photo
 
-crd = squares[0]
+_ARTagCode = simCheck.checkSimilarity(_END_PHOTO_PATH_)         #checks similarity of parsedPhoto with all of template ARTags in .\artags
 
-
-tRX = crd[1][0]
-tRY = crd[1][1]
-tLX = crd[0][0]
-tLY = crd[0][1]
-
-
-
-wsp_kier = (tLY - tRY) / (tLX - tRX)
-wsp_kier=0
-print('wspolczynik kier:',wsp_kier)
+print(_ARTagCode)
 
 
 
 
-cv2.imwrite("photos/cropped.jpg", cropped)
-rotation.rotate("photos/cropped.jpg",math.ceil(-wsp_kier))
 
 
 
-
-#number below represents treshold of changing colors of picture
-
-parseImage.parseARTag(cv2.imread("photos/rotated.jpg"),120)
-
-
-#size of inside + 4 for outline 
-tag = ARTag(10,"photos/result.jpg",True)
-#tag.tag.printReplace(1,1,1,'X',0,' ')
-#tag.showImage()
-
-checkPhoto = 'photos/endPicture.jpg'
-projectPath = "C:\\Users\\koste\\Desktop\\moje\\prjekty\\code\\artag\\"
-projectPathLen = len(projectPath)
-
-files = glob.glob("C:\\Users\\koste\\Desktop\\moje\\prjekty\\code\\artag\\artags\\*.*")
-
-checkVal=[]
-
-for x in range(len(files)):
-    name="artags/"
-    name+=files[x][54:]
-    simPercent=math.ceil(simCheck.check(name,checkPhoto,x))
-    print(simPercent,'%')
-    checkVal.append(simPercent)
-
-_ARTagCode = checkVal.index(max(checkVal))
-
-print('Ta liczba to: ', _ARTagCode+1)
