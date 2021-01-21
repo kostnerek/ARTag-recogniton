@@ -1,7 +1,6 @@
 import cv2 
 import numpy as np
 from PIL import Image 
-from ar_markers import detect_markers
 
 _END_PHOTO_PATH_ = 'photos/endPicture.jpg'
 
